@@ -116,3 +116,62 @@ def clear_mark():
             os.remove("mark.txt")
         except OSError:
             print("ERRO AO DELETAR OS PONTOS!")
+
+background = pygame.image.load("bg.jpg")
+
+clock = pygame.time.Clock()
+run = True
+point_saves = False
+pressed_mouse= False
+current_position = None
+
+while run:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            save_mark()
+            run = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                pressed_mouse = True
+                current_position = pygame.mouse.get_pos()
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1 and pressed_mouse:
+                pressed_mouse = False
+            if current_position:
+                name = opening_dialog()
+            if name is not None and name != "":  
+                mark.append((current_position, name))
+            elif name == "":
+                x, y = current_position
+                mark.append((current_position, f" {x}, {y},(NÃO IDENTIFICADO)"))
+            current_position = None
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F10:
+                if not point_saves:
+                    save_mark()
+                    point_saves = True
+            elif event.key == pygame.K_F11:
+                load_mark()
+                point_saves = False
+            elif event.key == pygame.K_ESCAPE:
+                save_mark()
+                run = False
+            elif event.key == pygame.K_F12:
+                clear_mark()
+                point_saves = False
+
+    display_game.blit(background, (0, 0))
+    draw_mark()
+
+    font = pygame.font.Font(None, 20)
+    display_text("F10 SALVAR PONTOS", font, white, 10, 10)
+    display_text("F11 CARREGAR PONTOS SALVAS", font, white, 10, 30)
+    display_text("F12 DELETAR PONTOS", font, white, 10, 50)
+
+    if point_saves:
+        display_text("PONTOS SALVOS!", font, white, 10, 70)
+
+    pygame.display.flip()
+
+pygame.quit()
